@@ -1,0 +1,28 @@
+:root {
+  --patina: #004953;
+  --patina-dark: #00333A;
+  --patina-secondary: #266E78;
+  --patina-accent: #5FAAB5;
+  --patina-light: #E8F3F5;
+
+  --bg: #F2F6F7;
+  --card-bg: #FFFFFF;
+  --border: #D1E1E4;
+  --text-dark: #111E25;
+  --text-gray: #5B6B73;
+  --white: #FFFFFF;
+
+  --green: #22C55E;
+  --green-light: #DCFCE7;
+  --amber: #F59E0B;
+  --amber-light: #FEF3C7;
+  --red: #EF4444;
+  --red-light: #FEE2E2;
+  --blue: #3B82F6;
+  --blue-light: #E0F2FE;
+  --purple: #8B5CF6;
+  --purple-light: #F3E8FF;
+
+  --btn-main: var(--patina);
+  --btn-main-hover: var(--patina-dark);
+}

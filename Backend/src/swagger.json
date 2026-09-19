@@ -1,0 +1,345 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "NEXUSPOS REST API",
+    "version": "1.0.0",
+    "description": "Authoritative API Contract for NEXUSPOS Multi-Branch Point of Sale & Retail Management System"
+  },
+  "servers": [
+    {
+      "url": "/api/v1",
+      "description": "Primary API v1 Server Base"
+    }
+  ],
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "summary": "Authenticate user and issue JWT Access and Refresh tokens",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": { "type": "string" },
+                  "password": { "type": "string" }
+                },
+                "required": ["username", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Login successful" },
+          "401": { "description": "Invalid credentials" }
+        }
+      }
+    },
+    "/auth/refresh-token": {
+      "post": {
+        "summary": "Rotate refresh token and issue new access token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "refreshToken": { "type": "string" }
+                },
+                "required": ["refreshToken"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Token rotated successfully" },
+          "401": { "description": "Invalid or revoked refresh token" }
+        }
+      }
+    },
+    "/auth/forgot-password": {
+      "post": {
+        "summary": "Generate password reset token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "emailOrUsername": { "type": "string" }
+                },
+                "required": ["emailOrUsername"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Password reset token generated" }
+        }
+      }
+    },
+    "/auth/reset-password": {
+      "post": {
+        "summary": "Reset user password using token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token": { "type": "string" },
+                  "newPassword": { "type": "string" }
+                },
+                "required": ["token", "newPassword"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Password reset successfully" },
+          "400": { "description": "Invalid or expired token" }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "summary": "Retrieve catalog products",
+        "responses": { "200": { "description": "Product catalog list" } }
+      },
+      "post": {
+        "summary": "Create new catalog product",
+        "responses": { "201": { "description": "Product created" } }
+      }
+    },
+    "/inventory/stock": {
+      "get": {
+        "summary": "Retrieve inventory stock levels across branches",
+        "responses": { "200": { "description": "Stock levels list" } }
+      }
+    },
+    "/pos/orders": {
+      "get": {
+        "summary": "Retrieve POS sales order history",
+        "responses": { "200": { "description": "POS orders list" } }
+      },
+      "post": {
+        "summary": "Process POS checkout and create sales order",
+        "responses": { "201": { "description": "Sales order completed" } }
+      }
+    },
+    "/pos/orders/void": {
+      "post": {
+        "summary": "Void active sales order with manager PIN authorization",
+        "responses": { "200": { "description": "Sales order voided" } }
+      }
+    },
+    "/pos/kds": {
+      "get": {
+        "summary": "Get active Barista Kitchen Display tickets (RECEIVED, PREPARING, READY)",
+        "responses": { "200": { "description": "KDS tickets list" } }
+      }
+    },
+    "/pos/kds/{orderId}/status": {
+      "patch": {
+        "summary": "Advance Barista KDS ticket workflow status (RECEIVED -> PREPARING -> READY -> SERVED)",
+        "responses": { "200": { "description": "KDS status updated" }, "422": { "description": "Invalid status transition" } }
+      }
+    },
+    "/purchase-orders": {
+      "get": {
+        "summary": "Retrieve purchase orders",
+        "responses": { "200": { "description": "Purchase orders list" } }
+      },
+      "post": {
+        "summary": "Create purchase order",
+        "responses": { "201": { "description": "Purchase order created" } }
+      }
+    },
+    "/purchase-orders/{id}/status": {
+      "patch": {
+        "summary": "Transition purchase order status (ADMINISTRATOR/MANAGER required)",
+        "responses": { "200": { "description": "Status updated" }, "422": { "description": "Invalid transition" } }
+      }
+    },
+    "/purchasing/orders/{id}/status": {
+      "patch": {
+        "summary": "Transition purchase order status alias (ADMINISTRATOR/MANAGER required)",
+        "responses": { "200": { "description": "Status updated" }, "422": { "description": "Invalid transition" } }
+      }
+    },
+    "/grn": {
+      "get": {
+        "summary": "Retrieve Goods Received Notes (GRN)",
+        "responses": { "200": { "description": "GRN list" } }
+      },
+      "post": {
+        "summary": "Receive stock and log GRN",
+        "responses": { "201": { "description": "GRN logged" } }
+      }
+    },
+    "/grn/{id}/payment": {
+      "post": {
+        "summary": "Record payment settlement against GRN (ADMINISTRATOR/MANAGER required)",
+        "responses": { "200": { "description": "Payment recorded" }, "404": { "description": "GRN not found" } }
+      }
+    },
+    "/warehouse/transfer": {
+      "post": {
+        "summary": "Transfer stock between warehouses transactionally",
+        "responses": { "201": { "description": "Stock transfer completed" } }
+      }
+    },
+    "/warehouse/transfer/{id}/complete": {
+      "post": {
+        "summary": "Complete stock transfer and credit destination warehouse (ADMINISTRATOR/MANAGER required)",
+        "responses": { "200": { "description": "Transfer completed" }, "422": { "description": "Invalid status" } }
+      }
+    },
+    "/warehouse/transfer/{id}/cancel": {
+      "post": {
+        "summary": "Cancel stock transfer and return stock to source warehouse (ADMINISTRATOR/MANAGER required)",
+        "responses": { "200": { "description": "Transfer cancelled" }, "422": { "description": "Invalid status" } }
+      }
+    },
+    "/reports/sales-summary": {
+      "get": {
+        "summary": "Retrieve sales summary report aggregations",
+        "responses": { "200": { "description": "Sales summary metrics" } }
+      }
+    },
+    "/hr/payroll/calculate": {
+      "post": {
+        "summary": "Calculate monthly net payroll for employee",
+        "responses": { "200": { "description": "Payroll calculated" } }
+      }
+    },
+    "/branches": {
+      "get": {
+        "summary": "Retrieve all registered branches",
+        "responses": { "200": { "description": "Branches list" } }
+      },
+      "post": {
+        "summary": "Create new branch (ADMINISTRATOR required)",
+        "responses": { "201": { "description": "Branch created" }, "409": { "description": "Duplicate code" } }
+      }
+    },
+    "/branches/{id}": {
+      "get": {
+        "summary": "Retrieve branch by ID",
+        "responses": { "200": { "description": "Branch details" }, "404": { "description": "Not found" } }
+      },
+      "put": {
+        "summary": "Update branch (ADMINISTRATOR required)",
+        "responses": { "200": { "description": "Branch updated" }, "404": { "description": "Not found" } }
+      },
+      "delete": {
+        "summary": "Delete branch (ADMINISTRATOR required)",
+        "responses": { "200": { "description": "Branch deleted" }, "404": { "description": "Not found" } }
+      }
+    },
+    "/raw-materials": {
+      "get": {
+        "summary": "Retrieve all raw materials",
+        "responses": { "200": { "description": "Raw materials list" } }
+      },
+      "post": {
+        "summary": "Create raw material item (ADMINISTRATOR/MANAGER required)",
+        "responses": { "201": { "description": "Raw material created" }, "409": { "description": "Duplicate code" } }
+      }
+    },
+    "/raw-materials/batches": {
+      "get": {
+        "summary": "Retrieve raw material batches",
+        "responses": { "200": { "description": "Batches list" } }
+      },
+      "post": {
+        "summary": "Record raw material batch (ADMINISTRATOR/MANAGER required)",
+        "responses": { "201": { "description": "Batch recorded" } }
+      }
+    },
+    "/raw-materials/inventory": {
+      "get": {
+        "summary": "Retrieve raw material inventory levels",
+        "responses": { "200": { "description": "Inventory levels" } }
+      }
+    },
+    "/raw-materials/inventory/adjust": {
+      "post": {
+        "summary": "Adjust raw material stock level (ADMINISTRATOR/MANAGER required)",
+        "responses": { "200": { "description": "Stock adjusted" } }
+      }
+    },
+    "/raw-materials/{id}": {
+      "get": {
+        "summary": "Retrieve raw material by ID",
+        "responses": { "200": { "description": "Raw material details" }, "404": { "description": "Not found" } }
+      },
+      "put": {
+        "summary": "Update raw material item (ADMINISTRATOR/MANAGER required)",
+        "responses": { "200": { "description": "Raw material updated" }, "404": { "description": "Not found" } }
+      },
+      "delete": {
+        "summary": "Delete raw material item (ADMINISTRATOR/MANAGER required)",
+        "responses": { "200": { "description": "Raw material deleted" }, "404": { "description": "Not found" } }
+      }
+    },
+    "/recipes": {
+      "get": {
+        "summary": "List all product recipes",
+        "responses": { "200": { "description": "Recipes list" } }
+      },
+      "post": {
+        "summary": "Create recipe for product (ADMINISTRATOR/MANAGER required)",
+        "responses": { "201": { "description": "Recipe created" }, "409": { "description": "Recipe already exists" } }
+      }
+    },
+    "/recipes/product/{productId}": {
+      "get": {
+        "summary": "Get recipe by product ID",
+        "responses": { "200": { "description": "Recipe details" }, "404": { "description": "Not found" } }
+      }
+    },
+    "/recipes/{id}": {
+      "get": {
+        "summary": "Get recipe by ID",
+        "responses": { "200": { "description": "Recipe details" }, "404": { "description": "Not found" } }
+      },
+      "put": {
+        "summary": "Update recipe (ADMINISTRATOR/MANAGER required)",
+        "responses": { "200": { "description": "Recipe updated" }, "404": { "description": "Not found" } }
+      },
+      "delete": {
+        "summary": "Delete recipe (ADMINISTRATOR/MANAGER required)",
+        "responses": { "200": { "description": "Recipe deleted" }, "404": { "description": "Not found" } }
+      }
+    },
+    "/customers/groups": {
+      "get": {
+        "summary": "List all customer groups",
+        "responses": { "200": { "description": "Customer groups list" } }
+      },
+      "post": {
+        "summary": "Create customer group (ADMINISTRATOR/MANAGER required)",
+        "responses": { "201": { "description": "Customer group created" } }
+      }
+    },
+    "/customers/groups/{id}": {
+      "get": {
+        "summary": "Get customer group by ID",
+        "responses": { "200": { "description": "Group details" }, "404": { "description": "Not found" } }
+      },
+      "put": {
+        "summary": "Update customer group (ADMINISTRATOR/MANAGER required)",
+        "responses": { "200": { "description": "Group updated" }, "404": { "description": "Not found" } }
+      },
+      "delete": {
+        "summary": "Delete customer group (ADMINISTRATOR/MANAGER required)",
+        "responses": { "200": { "description": "Group deleted" }, "404": { "description": "Not found" } }
+      }
+    }
+  }
+}
