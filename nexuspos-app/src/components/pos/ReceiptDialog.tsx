@@ -3,7 +3,7 @@
 import React, { useRef } from "react";
 import { Dialog } from "@/components/ui/Dialog";
 import { Button } from "@/components/ui/Button";
-import { Printer, CheckCircle } from "lucide-react";
+import { Printer } from "lucide-react";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { PosOrder } from "@/types";
 

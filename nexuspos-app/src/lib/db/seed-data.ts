@@ -19,15 +19,6 @@ import {
   Shift,
   PosOrder,
   SystemSettings,
-  Warehouse,
-  InventoryStock,
-  InventoryBatch,
-  AttendanceRecord,
-  PayrollRecord,
-  CustomerReturn,
-  SupplierReturn,
-  WarehouseProduction,
-  StockTransfer,
 } from "@/types";
 
 export const initialBranches: Branch[] = [

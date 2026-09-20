@@ -42,9 +42,9 @@ import {
 import { toast } from "sonner";
 
 export default function POSPage() {
-  const [products, setProducts] = useState<Product[]>(db.products);
+  const [products] = useState<Product[]>(db.products);
   const [customers, setCustomers] = useState<Customer[]>(db.customers);
-  const [tables, setTables] = useState<DiningTable[]>(db.tables);
+  const [tables] = useState<DiningTable[]>(db.tables);
 
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -166,7 +166,7 @@ export default function POSPage() {
     setShowPaymentModal(true);
   };
 
-  const executeOrder = (pinOverride = false) => {
+  const executeOrder = (_pinOverride = false) => {
     const selectedTable = tables.find((t) => t.id === selectedTableId);
 
     const newOrder: PosOrder = {
@@ -180,13 +180,7 @@ export default function POSPage() {
       tableId: selectedTableId ? Number(selectedTableId) : undefined,
       tableName: selectedTable ? selectedTable.name : undefined,
       orderType,
-      items: cart.map((item) => ({
-        productId: item.id,
-        productName: item.name,
-        quantity: item.qty,
-        unitPrice: item.price,
-        subtotal: item.price * item.qty,
-      })),
+      items: [...cart],
       subtotal,
       discountAmount: totalDiscount,
       taxAmount,
@@ -202,9 +196,15 @@ export default function POSPage() {
 
     db.orders.unshift(newOrder);
 
-    // Update customer balance if credit
-    if (paymentMethod === "CREDIT" && selectedCustomer) {
-      selectedCustomer.outstandingBalance += grandTotal;
+    // Update customer balance if credit immutably
+    if (paymentMethod === "CREDIT" && selectedCustomerId) {
+      setCustomers((prev) =>
+        prev.map((c) =>
+          c.id === selectedCustomerId
+            ? { ...c, outstandingBalance: (c.outstandingBalance || 0) + grandTotal }
+            : c
+        )
+      );
     }
 
     setLastOrder(newOrder);

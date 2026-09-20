@@ -46,7 +46,7 @@ import {
 // Shared Browser & Server In-Memory Data Store
 class NexusDataStore {
   public branches: Branch[] = [...initialBranches];
-  public users = [...initialUsers];
+  public users: User[] = [...initialUsers];
   public categories: Category[] = [...initialCategories];
   public units: Unit[] = [...initialUnits];
   public products: Product[] = [...initialProducts];

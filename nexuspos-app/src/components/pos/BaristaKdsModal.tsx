@@ -4,9 +4,8 @@ import React, { useState } from "react";
 import { Dialog } from "@/components/ui/Dialog";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { Coffee, Clock, CheckCircle2, Flame, User } from "lucide-react";
+import { Clock, CheckCircle2, Flame } from "lucide-react";
 import { toast } from "sonner";
-import { formatDateTime } from "@/lib/utils";
 
 interface KdsTicket {
   id: string;

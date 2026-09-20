@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { FileSpreadsheet, Calendar, Filter, Printer } from "lucide-react";
+import { FileSpreadsheet, Calendar, Printer } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { toast } from "sonner";
 

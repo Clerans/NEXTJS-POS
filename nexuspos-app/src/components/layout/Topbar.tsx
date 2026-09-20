@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Menu, Bell, Coffee, MonitorSmartphone, User } from "lucide-react";
 import { toast } from "sonner";
 
