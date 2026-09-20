@@ -11,19 +11,15 @@ interface TopbarProps {
 }
 
 export const Topbar: React.FC<TopbarProps> = ({ onToggleSidebar }) => {
-  const router = useRouter();
-  const [currentDate, setCurrentDate] = useState<string>("");
-
-  useEffect(() => {
+  const [currentDate] = useState<string>(() => {
     const d = new Date();
-    const formatted = d.toLocaleDateString("en-US", {
+    return d.toLocaleDateString("en-US", {
       weekday: "long",
       year: "numeric",
       month: "long",
       day: "numeric",
     });
-    setCurrentDate(formatted);
-  }, []);
+  });
 
   return (
     <header className="topbar">
