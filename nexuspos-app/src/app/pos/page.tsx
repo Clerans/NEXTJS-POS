@@ -166,54 +166,52 @@ export default function POSPage() {
     setShowPaymentModal(true);
   };
 
-  const executeOrder = (_pinOverride = false) => {
-    const selectedTable = tables.find((t) => t.id === selectedTableId);
+  const executeOrder = async (_pinOverride = false) => {
+    try {
+      const res = await fetch("/api/pos/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          branchId: 1,
+          orderType,
+          customerId: selectedCustomerId ? Number(selectedCustomerId) : undefined,
+          tableId: selectedTableId ? Number(selectedTableId) : undefined,
+          items: cart,
+          manualDiscount,
+          paymentMethod,
+          tenderedAmount: paymentMethod === "CASH" ? numericTendered : grandTotal,
+          managerPinOverride: _pinOverride,
+        }),
+      });
 
-    const newOrder: PosOrder = {
-      id: db.generateOrderId(),
-      orderNo: db.generateOrderId(),
-      branchId: 1,
-      branchName: "NEXUS Main Outlet",
-      cashierName: "NEXUS Cashier",
-      customerId: selectedCustomerId ? Number(selectedCustomerId) : undefined,
-      customerName: selectedCustomer ? selectedCustomer.name : "Walk-in Customer",
-      tableId: selectedTableId ? Number(selectedTableId) : undefined,
-      tableName: selectedTable ? selectedTable.name : undefined,
-      orderType,
-      items: [...cart],
-      subtotal,
-      discountAmount: totalDiscount,
-      taxAmount,
-      serviceCharge,
-      totalAmount: grandTotal,
-      paymentMethod,
-      amountPaid: paymentMethod === "CASH" ? Math.max(grandTotal, numericTendered) : grandTotal,
-      changeGiven: paymentMethod === "CASH" ? changeDue : 0,
-      status: "COMPLETED",
-      kdsStatus: "RECEIVED",
-      createdAt: new Date().toISOString(),
-    };
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error?.message || data.message || "Failed to process checkout");
+      }
 
-    db.orders.unshift(newOrder);
+      const verifiedOrder = data.order;
+      setLastOrder(verifiedOrder);
 
-    // Update customer balance if credit immutably
-    if (paymentMethod === "CREDIT" && selectedCustomerId) {
-      setCustomers((prev) =>
-        prev.map((c) =>
-          c.id === selectedCustomerId
-            ? { ...c, outstandingBalance: (c.outstandingBalance || 0) + grandTotal }
-            : c
-        )
-      );
+      if (paymentMethod === "CREDIT" && selectedCustomerId) {
+        setCustomers((prev) =>
+          prev.map((c) =>
+            c.id === selectedCustomerId
+              ? { ...c, outstandingBalance: (c.outstandingBalance || 0) + (verifiedOrder.totalAmount || grandTotal) }
+              : c
+          )
+        );
+      }
+
+      setCart([]);
+      setManualDiscount(0);
+      setShowPaymentModal(false);
+      setShowPinModal(false);
+      setShowReceipt(true);
+      toast.success(`Order ${verifiedOrder.orderNo} placed and settled successfully!`);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "Failed to place order";
+      toast.error(msg);
     }
-
-    setLastOrder(newOrder);
-    setCart([]);
-    setManualDiscount(0);
-    setShowPaymentModal(false);
-    setShowPinModal(false);
-    setShowReceipt(true);
-    toast.success(`Order ${newOrder.orderNo} placed successfully!`);
   };
 
   const getCategoryIcon = (catName?: string) => {
