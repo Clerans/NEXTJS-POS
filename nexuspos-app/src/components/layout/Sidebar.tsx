@@ -55,10 +55,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
     setOpenGroups((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {
+      // ignore
+    }
     if (typeof window !== "undefined") {
       localStorage.removeItem("isAuthenticated");
       localStorage.removeItem("nexuspos_user");
+      localStorage.removeItem("nexuspos_auth_token");
     }
     toast.info("Logged out successfully");
     router.push("/login");

@@ -33,7 +33,7 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Login failed");
+        throw new Error(data.error?.message || data.message || "Login failed");
       }
 
       if (typeof window !== "undefined") {
@@ -51,8 +51,9 @@ export default function LoginPage() {
 
       toast.success(data.message || "Logged in successfully!");
       router.push("/dashboard");
-    } catch (error: any) {
-      toast.error(error.message || "Login failed. Please check credentials.");
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "Login failed. Please check credentials.";
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -82,14 +83,15 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Failed to update password");
+        throw new Error(data.error?.message || data.message || "Failed to update password");
       }
 
       toast.success("Password changed successfully! Welcome to NEXUSPOS.");
       setMustReset(false);
       router.push("/dashboard");
-    } catch (error: any) {
-      toast.error(error.message || "Failed to update password");
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "Failed to update password";
+      toast.error(msg);
     }
   };
 
